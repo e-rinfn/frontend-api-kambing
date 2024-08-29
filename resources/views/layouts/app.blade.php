@@ -140,17 +140,18 @@
                     </a>
                 </li>
                 <li class="list-group-item">
-                    <a href="#" class="text-decoration-none text-dark d-flex align-items-center">
+                    <a href="{{ url('goats/create') }}"
+                        class="text-decoration-none text-dark d-flex align-items-center">
                         <i class="bi bi-plus-circle me-2"></i> Tambah Kambing
                     </a>
                 </li>
-                <li class="list-group-item">
+                {{-- <li class="list-group-item">
                     <a href="#" class="text-decoration-none text-dark d-flex align-items-center">
                         <i class="bi bi-graph-up me-2"></i> Data Kambing
                     </a>
-                </li>
+                </li> --}}
                 <li class="list-group-item">
-                    <a href="#" class="text-decoration-none text-dark d-flex align-items-center">
+                    <a href="{{ url('laporan') }}" class="text-decoration-none text-dark d-flex align-items-center">
                         <i class="bi bi-file-earmark-text me-2"></i> Laporan
                     </a>
                 </li>

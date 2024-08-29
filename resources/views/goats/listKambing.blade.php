@@ -3,13 +3,7 @@
 @section('content')
     <br>
     <br>
-    <br>
     <div class="container">
-
-        @if (isset($search))
-            <h2>Hasil Pencarian untuk "{{ $search }}"</h2>
-        @endif
-
         <div class="row">
             <div class="col-12 mb-3 d-flex justify-content-between align-items-center">
                 <h4>Manage Goats</h4>
@@ -22,16 +16,6 @@
                 {{ session('success') }}
             </div>
         @endif
-
-        <form action="{{ route('goats.search') }}" method="GET" class="mb-4">
-            <div class="input-group">
-                <input type="text" name="search" class="form-control" placeholder="Cari berdasarkan nomor tag..."
-                    value="{{ request('search') }}">
-                <div class="input-group-append">
-                    <button type="submit" class="btn btn-primary">Cari</button>
-                </div>
-            </div>
-        </form>
 
         <div class="row">
             @foreach ($goats as $goat)

@@ -71,10 +71,7 @@ private function calculateAgeDistribution($goats)
 
     return $ageDistribution;
 }
-
-
     
-        
 
     public function store(Request $request)
     {
@@ -149,7 +146,7 @@ private function calculateAgeDistribution($goats)
     
         if ($response->successful()) {
             // Redirect to the goats index page with a success message
-            return redirect('goats')->with('success', 'Data Kambing Berhasil Ditambahkan.');
+            return redirect('listKambing')->with('success', 'Data Kambing Berhasil Ditambahkan.');
         } else {
             return redirect()->back()->withErrors('Gagal Menambahkan Data Kambing. Nomor Tag Harus Unik.')->withInput();
         }
@@ -207,7 +204,7 @@ private function calculateAgeDistribution($goats)
             // Memeriksa apakah response berhasil
             if ($response->successful()) {
                 // Jika berhasil, arahkan ke halaman daftar kambing dengan pesan sukses
-                return redirect('goats')->with('success', 'Data Kambing Berhasil Diperbarui.');
+                return redirect('listKambing')->with('success', 'Data Kambing Berhasil Diperbarui.');
             } else {
                 // Jika gagal, arahkan kembali ke form edit dengan pesan error
                 return redirect()->back()->withErrors('Gagal Memperbarui Data Kambing.')->withInput();
@@ -315,4 +312,39 @@ public function generateQRCode($id)
         return view('goats.edit', compact('goat'));
     }
 
+    public function weightHistory($id)
+    {
+        $response = Http::withToken(Session::get('api_token'))->get($this->apiUrl . '/' . $id);
+        $goat = $response->json();
+        return view('goats.weightHistory', compact('goat'));
+    }
+
+    public function addWeight(Request $request, $id)
+    {
+        $validatedData = $request->validate([
+            'bobot' => 'required|numeric',
+            'tanggal' => 'required|date',
+        ]);
+
+        $response = Http::withToken(Session::get('api_token'))->post($this->apiUrl . '/' . $id . '/weights', $validatedData);
+
+        if ($response->successful()) {
+            return redirect()->back()->with('success', 'Berat Kambing Berhasil Ditambahkan.');
+        } else {
+            return redirect()->back()->withErrors('Gagal Menambahkan Berat Kambing.')->withInput();
+        }
+    }
+
+   public function laporan()
+{
+    $response = Http::withToken(Session::get('api_token'))->get($this->apiUrl);
+    $goats = $response->json();
+
+    $totalGoats = count($goats);
+    $totalMale = count(array_filter($goats, fn($goat) => $goat['kelamin'] === 'Jantan'));
+    $totalFemale = count(array_filter($goats, fn($goat) => $goat['kelamin'] === 'Betina'));
+    $averageWeight = array_sum(array_column($goats, 'bobot')) / $totalGoats;
+    $positions = collect($goats)->pluck('posisiKandang')->unique()->sort()->values();    
+    
+    return view('goats.laporan', compact('goats', 'totalGoats', 'totalMale', 'totalFemale', 'averageWeight', 'positions'));}
 }

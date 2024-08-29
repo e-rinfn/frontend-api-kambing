@@ -99,11 +99,13 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12 mb-4">
-                <h3 class="text-center">Age Distribution Chart</h3>
+                <h3 class="text-center">Diagram Perbandingan Umur</h3>
                 <canvas id="ageDistributionChart" width="400" height="200"></canvas>
             </div>
         </div>
     </div>
+
+
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>

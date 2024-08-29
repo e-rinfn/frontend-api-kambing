@@ -23,6 +23,8 @@ Route::get('/', function () {
 Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('login', [AuthController::class, 'login']);
 Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+Route::get('register', [AuthController::class, 'showRegistrationForm'])->name('register');
+Route::post('register', [AuthController::class, 'register']);
 
 // Routes for Goat Management
 Route::middleware(['authcheck'])->group(function () {
@@ -34,10 +36,13 @@ Route::middleware(['authcheck'])->group(function () {
     Route::get('goats/{id}/edit', [GoatController::class, 'edit'])->name('goats.edit');
     Route::put('goats/{id}', [GoatController::class, 'update'])->name('goats.update');
     Route::delete('goats/{id}', [GoatController::class, 'destroy'])->name('goats.destroy');
+    Route::get('/laporan', [GoatController::class, 'laporan'])->name('goats.laporan');
     
     // QR Code Routes
     Route::get('/generate-qr-code/{id}', [GoatController::class, 'generateQrCode'])->name('generate.qr.code');
     Route::get('/view-qr-code/{id}', [GoatController::class, 'viewQrCode'])->name('view.qr.code');
+
+ 
 
 
     Route::get('/goats/search', [GoatController::class, 'search'])->name('goats.search');
@@ -58,4 +63,9 @@ Route::middleware(['authcheck'])->group(function () {
 
     // QR Code Scanning Route
     Route::get('/scan', [GoatController::class, 'scan'])->name('goats.scan');
+
+
+    Route::get('/weight-history/{goatId}', function ($goatId) {
+        return view('weight-history', ['goatId' => $goatId]);
+    });
 });

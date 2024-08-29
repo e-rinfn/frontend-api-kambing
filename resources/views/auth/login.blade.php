@@ -15,8 +15,7 @@
 <body>
     <div class="d-flex justify-content-center align-items-center vh-100">
         <div class="col-md-4 col-sm-8">
-            <!-- Tambahkan logo di atas form login -->
-
+            <!-- Logo can be added here above the forms -->
 
             <div class="card p-4 shadow-sm">
                 <h4 class="text-center mb-4">Login</h4>
@@ -33,6 +32,46 @@
                     </div>
                     <button type="submit" class="btn btn-primary w-100">Login</button>
                 </form>
+            </div>
+
+            <div class="text-center mt-3">
+                <a href="#" data-bs-toggle="modal" data-bs-target="#registerModal">Don't have an account? Register
+                    here</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for User Registration -->
+    <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="registerModalLabel">User Registration</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{ url('register') }}" method="POST">
+                        @csrf
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="username" name="username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="role" class="form-label">Role</label>
+                            <input type="text" class="form-control" id="role" name="role" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password-confirmation" class="form-label">Confirm Password</label>
+                            <input type="password" class="form-control" id="password-confirmation"
+                                name="password_confirmation" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Register</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

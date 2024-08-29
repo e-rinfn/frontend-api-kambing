@@ -98,7 +98,7 @@ public function edit($goatId, $careId)
         ->get(env('API_URL') . '/goats/' . $goatId);
     $goat = $response->json();
 
-    return view('cares.edit', compact('care', 'goat', 'GoatId'));
+    return view('cares.edit', compact('care', 'goat', 'goatId'));
 }
 
 public function store(Request $request, $goatId)

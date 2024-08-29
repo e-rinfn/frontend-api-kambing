@@ -1,127 +1,52 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container mt-5">
+    <div class="container mt-4">
         <div class="card shadow-sm">
             <div class="card-header bg-primary text-white">
                 <h4 class="mb-0">Detail Kambing</h4>
             </div>
             <div class="card-body">
-
+                <!-- Goat Information -->
                 <div class="row">
-                    <div class="col-md-6">
-                        <!-- Field No Tag -->
-                        <div class="mb-3">
-                            <label class="form-label">No Tag Kambing</label>
-                            <p class="form-control-plaintext">{{ $goat['noTag'] }}</p>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <!-- Field Tanggal Lahir -->
-                        <div class="mb-3">
-                            <label class="form-label">Tanggal Lahir</label>
-                            <p class="form-control-plaintext">
-                                {{ \Carbon\Carbon::parse($goat['tanggalLahir'])->format('d/m/Y') }}</p>
-                        </div>
-                    </div>
-                </div>
+                    @php
+                        $fields = [
+                            'No Tag Kambing' => $goat['noTag'],
+                            'Tanggal Lahir' => \Carbon\Carbon::parse($goat['tanggalLahir'])->format('d/m/Y'),
+                            'Nama' => $goat['nama'],
+                            'Bobot (KG)' => $goat['bobot'],
+                            'Jenis Kelamin' => $goat['kelamin'],
+                            'Jenis Kambing' => $goat['jenis'],
+                            'Nama Induk' => $goat['induk'],
+                            'Nama Pejantan' => $goat['pejantan'],
+                            'Posisi Kandang' => $goat['posisiKandang'],
+                            'Asal' => $goat['asal'],
+                            'Harga' => 'Rp. ' . number_format($goat['harga'], 2, ',', '.'),
+                            'Status' => ucfirst($goat['status']),
+                        ];
+                    @endphp
 
-                <div class="row">
-                    <div class="col-md-6">
-                        <!-- Field Nama -->
-                        <div class="mb-3">
-                            <label class="form-label">Nama</label>
-                            <p class="form-control-plaintext">{{ $goat['nama'] }}</p>
+                    @foreach ($fields as $label => $value)
+                        <div class="col-md-6 mb-3">
+                            <div class="border p-3 rounded">
+                                <strong class="d-block mb-2">{{ $label }}</strong>
+                                <p class="mb-0">{{ $value }}</p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-md-6">
-                        <!-- Field Bobot -->
-                        <div class="mb-3">
-                            <label class="form-label">Bobot (KG)</label>
-                            <p class="form-control-plaintext">{{ $goat['bobot'] }}</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6">
-                        <!-- Field Kelamin -->
-                        <div class="mb-3">
-                            <label class="form-label">Jenis Kelamin</label>
-                            <p class="form-control-plaintext">{{ $goat['kelamin'] }}</p>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <!-- Field Jenis -->
-                        <div class="mb-3">
-                            <label class="form-label">Jenis Kambing</label>
-                            <p class="form-control-plaintext">{{ $goat['jenis'] }}</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6">
-                        <!-- Field Induk -->
-                        <div class="mb-3">
-                            <label class="form-label">Nama Induk</label>
-                            <p class="form-control-plaintext">{{ $goat['induk'] }}</p>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <!-- Field Pejantan -->
-                        <div class="mb-3">
-                            <label class="form-label">Nama Pejantan</label>
-                            <p class="form-control-plaintext">{{ $goat['pejantan'] }}</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6">
-                        <!-- Field Posisi Kandang -->
-                        <div class="mb-3">
-                            <label class="form-label">Posisi Kandang</label>
-                            <p class="form-control-plaintext">{{ $goat['posisiKandang'] }}</p>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <!-- Field Asal -->
-                        <div class="mb-3">
-                            <label class="form-label">Asal</label>
-                            <p class="form-control-plaintext">{{ $goat['asal'] }}</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6">
-                        <!-- Field Harga -->
-                        <div class="mb-3">
-                            <label class="form-label">Harga</label>
-                            <p class="form-control-plaintext">{{ number_format($goat['harga'], 2, ',', '.') }}</p>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <!-- Field Status -->
-                        <div class="mb-3">
-                            <label class="form-label">Status</label>
-                            <p class="form-control-plaintext">{{ ucfirst($goat['status']) }}</p>
-                        </div>
-                    </div>
+                    @endforeach
                 </div>
 
                 <!-- QR Code Button -->
                 <div class="text-center mt-4">
-                    <button type="button" class="btn btn-primary px-5" data-bs-toggle="modal"
+                    <button type="button" class="btn btn-primary px-4 py-2" data-bs-toggle="modal"
                         data-bs-target="#qrCodeModal">
                         Lihat QR Code
                     </button>
                 </div>
 
                 <!-- Button to view care events -->
-                <div class="text-center mt-4">
-                    <a href="{{ route('goats.cares.index', $goat['id']) }}" class="btn btn-secondary px-5">
+                <div class="text-center mt-3">
+                    <a href="{{ route('goats.cares.index', $goat['id']) }}" class="btn btn-secondary px-4 py-2">
                         Lihat Perawatan
                     </a>
                 </div>
@@ -209,8 +134,6 @@
             </div>
         </div>
     </div>
-    <br>
-    <br>
     <br>
     <br>
 @endsection
