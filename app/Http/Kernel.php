@@ -69,5 +69,9 @@ class Kernel extends HttpKernel
 
         // Middleware check login
         'authcheck' => \App\Http\Middleware\AuthCheck::class,
+
+        // Middleware fetch user profile
+        'fetchUserProfile' => \App\Http\Middleware\FetchUserProfile::class,
+
     ];
 }

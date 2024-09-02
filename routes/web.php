@@ -3,6 +3,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\GoatController;
 use App\Http\Controllers\CareController;
+use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,6 +30,9 @@ Route::post('register', [AuthController::class, 'register']);
 
 // Routes for Goat Management
 Route::middleware(['authcheck'])->group(function () {
+
+    Route::get('/some-route', [GoatController::class, 'someFunction']);
+
     // Goat Routes
     Route::get('goats', [GoatController::class, 'index'])->name('goats.index');
     Route::get('goats/create', [GoatController::class, 'create'])->name('goats.create');
@@ -68,4 +73,12 @@ Route::middleware(['authcheck'])->group(function () {
     Route::get('/weight-history/{goatId}', function ($goatId) {
         return view('weight-history', ['goatId' => $goatId]);
     });
+});
+
+// Menambahkan data user yang sedang login kedalam sistem
+Route::middleware(['fetchUserProfile'])->group(function () {
+    Route::get('profiles', [UserController::class, 'index']);
+    Route::get('goats/create', [GoatController::class, 'create'])->name('goats.create');
+    Route::post('goats', [GoatController::class, 'store'])->name('goats.store');
+
 });

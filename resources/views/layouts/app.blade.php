@@ -126,6 +126,12 @@
 
 <body>
 
+    @if (Session::has('user_id') && Session::has('role'))
+        <p>User ID: {{ Session::get('user_id') }}</p>
+        <p>Role: {{ Session::get('role') }}</p>
+    @else
+        <p>User not logged in.</p>
+    @endif
     <!-- Sidebar -->
     <div class="offcanvas offcanvas-start" tabindex="1" id="sidebar" aria-labelledby="sidebarLabel">
         <div class="offcanvas-header">
@@ -206,9 +212,9 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">
+                    <a class="nav-link" href="{{ url('profiles') }}">
                         <i class="bi bi-person-gear"></i>
-                        <div>Akun</div>
+                        <div>Profile</div>
                     </a>
                 </li>
             </ul>

@@ -19,6 +19,7 @@ class AuthController extends Controller
             'username' => $request->input('username'),
             'password' => $request->input('password'),
         ]);
+        
 
         if ($response->successful()) {
             $token = $response->json('token');
@@ -63,5 +64,24 @@ class AuthController extends Controller
 
         // If the API response indicates an error, redirect back with an error message
         return back()->withErrors(['message' => 'Registration failed. Please try again.']);
+    }
+
+    public function getCurrentUser(Request $request)
+    {
+        // Ambil token dari header
+        $token = $request->bearerToken();
+        
+        if (!$token) {
+            return response()->json(['error' => 'No token provided'], 401);
+        }
+
+        // Buat permintaan ke API Node.js
+        $response = Http::withToken($token)->get('http://localhost:3000/api/auth/me');
+        
+        if ($response->successful()) {
+            return response()->json($response->json());
+        } else {
+            return response()->json(['error' => 'Unable to fetch user data'], $response->status());
+        }
     }
 }

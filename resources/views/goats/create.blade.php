@@ -20,6 +20,10 @@
                 <form action="{{ url('goats') }}" method="POST">
                     @csrf
                     <div class="row">
+
+                        {{-- <!-- Field User ID -->
+                        <input type="hidden" name="UserId" value="{{ Session::get('user.id') }}"> --}}
+
                         <div class="col-md-6">
                             <!-- Field No Tag -->
                             <div class="mb-3">
