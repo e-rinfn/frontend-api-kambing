@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container">
+    <div class="container mt-5">
         <h1 class="mb-4">Detail Perawatan</h1>
 
         <!-- Detail Card -->

@@ -8,94 +8,130 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <title>Login Informan Kambing</title>
+    <style>
+        /* Background color */
+        body {
+            background-color: #e8f5e9;
+        }
 
-    <title>Login Pure Fresh</title>
+        .login-container {
+            min-height: 100vh;
+        }
+
+        .card {
+            border-radius: 15px;
+            padding: 20px;
+            background-color: #ffffff;
+            border: none;
+        }
+
+        .btn-primary {
+            background-color: #4caf50;
+            border-color: #4caf50;
+        }
+
+        .btn-primary:hover {
+            background-color: #45a049;
+            border-color: #45a049;
+        }
+
+        .form-control {
+            border-radius: 10px;
+        }
+
+        .logo img {
+            width: 100px;
+            height: auto;
+        }
+
+        /* Mobile-first styles */
+        @media (max-width: 576px) {
+            .card {
+                padding: 15px;
+            }
+
+            .btn {
+                font-size: 14px;
+            }
+
+            .form-control {
+                font-size: 14px;
+            }
+        }
+
+        /* Desktop-specific adjustments */
+        @media (min-width: 992px) {
+            .login-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background-color: #4caf50;
+            }
+
+            .col-md-4 {
+                margin: auto;
+            }
+
+            .logo img {
+                width: 120px;
+            }
+
+            .card {
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            }
+        }
+    </style>
 </head>
 
 <body>
-    <div class="d-flex justify-content-center align-items-center vh-100">
-        <div class="col-md-4 col-sm-8">
-            <!-- Logo can be added here above the forms -->
-
-            <div class="card p-4 shadow-sm">
+    <div class="d-flex justify-content-center align-items-center login-container">
+        <div class="col-md-4 col-sm-10">
+            <!-- Logo -->
+            <div class="text-center mb-4 logo">
+                <img src="https://via.placeholder.com/150" alt="Logo" class="img-fluid">
+            </div>
+            <div class="card shadow-sm">
                 <h4 class="text-center mb-4">Login</h4>
 
                 <form action="{{ url('login') }}" method="POST">
                     @csrf
-                    <div class="mb-3">
+                    <div class="form-group mb-3">
                         <label for="username" class="form-label">Username</label>
-                        <input type="text" class="form-control" id="username" name="username" required>
+                        <input type="text" class="form-control" id="username" name="username"
+                            placeholder="Masukkan username" required>
                     </div>
-                    <div class="mb-3">
+                    <div class="form-group mb-4">
                         <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="password" name="password" required>
+                        <input type="password" class="form-control" id="password" name="password"
+                            placeholder="Masukkan password" required>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">Login</button>
+                    <button type="submit" class="btn btn-primary w-100 mb-3">Login</button>
                 </form>
             </div>
 
             <div class="text-center mt-3">
-                <a href="#" data-bs-toggle="modal" data-bs-target="#registerModal">Don't have an account? Register
-                    here</a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal for User Registration -->
-    <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="registerModalLabel">User Registration</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form action="{{ url('register') }}" method="POST">
-                        @csrf
-                        <div class="mb-3">
-                            <label for="username" class="form-label">Username</label>
-                            <input type="text" class="form-control" id="username" name="username" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="role" class="form-label">Role</label>
-                            <input type="text" class="form-control" id="role" name="role" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="password-confirmation" class="form-label">Confirm Password</label>
-                            <input type="password" class="form-control" id="password-confirmation"
-                                name="password_confirmation" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">Register</button>
-                    </form>
-                </div>
+                <a href="{{ url('/register') }}" class="text-success">Belum memiliki akun? Registrasi disini.</a>
             </div>
         </div>
     </div>
 
     <!-- Modal for Errors -->
     <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="errorModalLabel">Login Error</h5>
+                    <h5 class="modal-title" id="errorModalLabel">Login Failed</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <ul id="errorList">
-                        <!-- Errors will be dynamically added here -->
                         @if ($errors->any())
                             @foreach ($errors->all() as $error)
                                 <li>{{ $error }}</li>
                             @endforeach
                         @endif
                     </ul>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -116,7 +152,6 @@
             @endif
         });
     </script>
-
 </body>
 
 </html>

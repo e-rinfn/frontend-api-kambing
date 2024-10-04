@@ -8,6 +8,12 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- PWA  -->
+    <meta name="theme-color" content="#6777ef" />
+    <link rel="apple-touch-icon" href="{{ asset('logo.png') }}">
+    <link rel="manifest" href="{{ asset('/manifest.json') }}">
+
     <style>
         /* Menyembunyikan scrollbar sidebar pada iOS */
         .offcanvas-end {
@@ -95,11 +101,17 @@
 
         .nav-link {
             text-align: center;
+            color: #6c9e4e;
+        }
+
+        .nav-link:hover {
+            color: #6c757d;
         }
 
         .nav-link i {
             font-size: 1.5rem;
             display: block;
+
         }
 
         .nav-link div {
@@ -108,14 +120,15 @@
         }
 
         .nav-link-scan {
-            background-color: #007bff;
+            background-color: #6c9e4e;
             color: white;
             border-radius: 50px;
             padding: 10px 15px;
         }
 
         .nav-link-scan:hover {
-            background-color: #0056b3;
+            background-color: #567d3d;
+            color: white
         }
 
         .scan-icon {
@@ -126,12 +139,6 @@
 
 <body>
 
-    @if (Session::has('user_id') && Session::has('role'))
-        <p>User ID: {{ Session::get('user_id') }}</p>
-        <p>Role: {{ Session::get('role') }}</p>
-    @else
-        <p>User not logged in.</p>
-    @endif
     <!-- Sidebar -->
     <div class="offcanvas offcanvas-start" tabindex="1" id="sidebar" aria-labelledby="sidebarLabel">
         <div class="offcanvas-header">
@@ -161,11 +168,11 @@
                         <i class="bi bi-file-earmark-text me-2"></i> Laporan
                     </a>
                 </li>
-                <li class="list-group-item">
+                {{-- <li class="list-group-item">
                     <a href="#" class="text-decoration-none text-dark d-flex align-items-center">
                         <i class="bi bi-gear me-2"></i> Pengaturan
                     </a>
-                </li>
+                </li> --}}
                 <li class="list-group-item mt-3">
                     <form id="logout-form" action="{{ route('logout') }}" method="POST">
                         @csrf
@@ -179,16 +186,20 @@
 
 
 
-    <!-- Navbar atas tetap di atas -->
-    <nav class="navbar navbar-light bg-light navbar-top">
+    <!-- Navbar with farm-themed colors -->
+    <nav class="navbar navbar-light navbar-top" style="background-color: #6c9e4e; color: white;">
         <div class="container-fluid">
-            <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar"
+            <button class="btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar"
                 aria-controls="sidebar">
-                <i class="bi bi-list"></i> Menu
+                <i class="bi bi-list" style="font-size: 1.5rem; color: white;"></i>
+                <!-- Hamburger icon with larger size and white color -->
             </button>
-            <a class="navbar-brand" href="#">Goat Management</a>
+            <a class="navbar-brand text-white" href="#" style="font-weight: bold;">
+                Goat Management
+            </a>
         </div>
     </nav>
+
 
     <!-- Konten utama -->
     <div class="container main-content">
@@ -227,6 +238,21 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
         integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous">
+    </script>
+
+    <script src="{{ asset('/sw.js') }}"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then((registration) => {
+                        console.log('Service Worker registered with scope:', registration.scope);
+                    })
+                    .catch((error) => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
     </script>
 </body>
 

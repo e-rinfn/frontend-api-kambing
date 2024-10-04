@@ -31,7 +31,6 @@ Route::post('register', [AuthController::class, 'register']);
 // Routes for Goat Management
 Route::middleware(['authcheck'])->group(function () {
 
-    Route::get('/some-route', [GoatController::class, 'someFunction']);
 
     // Goat Routes
     Route::get('goats', [GoatController::class, 'index'])->name('goats.index');
@@ -75,10 +74,13 @@ Route::middleware(['authcheck'])->group(function () {
     });
 });
 
+
+
 // Menambahkan data user yang sedang login kedalam sistem
 Route::middleware(['fetchUserProfile'])->group(function () {
+    Route::get('goats', [GoatController::class, 'index']);
     Route::get('profiles', [UserController::class, 'index']);
     Route::get('goats/create', [GoatController::class, 'create'])->name('goats.create');
+    Route::put('goats/edit', [GoatController::class, 'edit'])->name('goats.edit');
     Route::post('goats', [GoatController::class, 'store'])->name('goats.store');
-
 });

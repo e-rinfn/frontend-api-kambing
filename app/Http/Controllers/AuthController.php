@@ -14,21 +14,26 @@ class AuthController extends Controller
     }
 
     public function login(Request $request)
-    {
-        $response = Http::post(env('API_URL') . '/auth/login', [
-            'username' => $request->input('username'),
-            'password' => $request->input('password'),
-        ]);
+{
+    $response = Http::post(env('API_URL') . '/auth/login', [
+        'username' => $request->input('username'),
+        'password' => $request->input('password'),
+    ]);
+
+    if ($response->successful()) {
+        // Jika login sukses, ambil token dan simpan dalam session
+        $token = $response->json('token');
+        Session::put('api_token', $token);
+        return redirect('goats');  // Redirect ke halaman "goats"
+    } else {
+        // Ambil pesan error dari API jika ada
+        $errorMessage = $response->json('message') ?? 'Usermane dan Password Tidak Cocok';
         
-
-        if ($response->successful()) {
-            $token = $response->json('token');
-            Session::put('api_token', $token);
-            return redirect('goats');
-        }
-
-        return back()->withErrors(['message' => 'Invalid credentials']);
+        // Kirim pesan error ke view
+        return back()->withErrors(['message' => $errorMessage]);
     }
+}
+
 
     public function logout()
     {

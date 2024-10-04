@@ -22,6 +22,9 @@
 
                 <form action="{{ url('register') }}" method="POST">
                     @csrf
+                    <!-- Input role disembunyikan -->
+                    <input type="hidden" id="role" name="role" value="pegawai">
+
                     <div class="mb-3">
                         <label for="username" class="form-label">Username</label>
                         <input type="text" class="form-control" id="username" name="username" required>
@@ -37,6 +40,7 @@
                     </div>
                     <button type="submit" class="btn btn-primary w-100">Register</button>
                 </form>
+
             </div>
         </div>
     </div>
