@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\PngWriter;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 
 
 class GoatController extends Controller
@@ -20,32 +22,48 @@ class GoatController extends Controller
     }
 
     public function listKambing()
-    {
-        $response = Http::withToken(Session::get('api_token'))->get($this->apiUrl);
-        $goats = $response->json();
-        return view('goats.listKambing', compact('goats'));
-    }
-
-    public function index()
 {
     $response = Http::withToken(Session::get('api_token'))->get($this->apiUrl);
     $goats = $response->json();
 
-    $totalGoats = count($goats);
-    $totalMale = count(array_filter($goats, fn($goat) => $goat['kelamin'] === 'Jantan'));
-    $totalFemale = count(array_filter($goats, fn($goat) => $goat['kelamin'] === 'Betina'));
+    // Filter kambing berdasarkan user_id dari pengguna yang sedang login
+    $userId = Session::get('user.id');
+    $filteredGoats = collect($goats)->where('UserId', $userId);
 
-    $averageWeight = array_sum(array_column($goats, 'bobot')) / $totalGoats;
-    $mostCommonBreed = array_count_values(array_column($goats, 'jenis'));
+    return view('goats.listKambing', ['goats' => $filteredGoats]);
+}
+
+
+public function index()
+{
+    // Dapatkan ID pengguna yang sedang login
+    $userId = Session::get('user.id');
+
+    // Ambil data kambing dari API
+    $response = Http::withToken(Session::get('api_token'))->get($this->apiUrl);
+    $goats = $response->json();
+
+    // Filter data kambing berdasarkan user_id pengguna yang sedang login
+    $filteredGoats = array_filter($goats, fn($goat) => $goat['UserId'] == $userId);
+
+    // Hitung total kambing, jumlah kambing jantan dan betina, rata-rata bobot, dll.
+    $totalGoats = count($filteredGoats);
+    $totalMale = count(array_filter($filteredGoats, fn($goat) => $goat['kelamin'] === 'Jantan'));
+    $totalFemale = count(array_filter($filteredGoats, fn($goat) => $goat['kelamin'] === 'Betina'));
+
+    $averageWeight = $totalGoats > 0 ? array_sum(array_column($filteredGoats, 'bobot')) / $totalGoats : 0;
+    $mostCommonBreed = array_count_values(array_column($filteredGoats, 'jenis'));
     arsort($mostCommonBreed);
-    $mostCommonBreed = array_key_first($mostCommonBreed);
+    $mostCommonBreed = $mostCommonBreed ? array_key_first($mostCommonBreed) : 'N/A';
 
     // Additional metrics
-    $cageDistribution = array_count_values(array_column($goats, 'posisiKandang'));
-    $ageDistribution = $this->calculateAgeDistribution($goats);
+    $cageDistribution = array_count_values(array_column($filteredGoats, 'posisiKandang'));
+    $ageDistribution = $this->calculateAgeDistribution($filteredGoats);
 
+    // Tampilkan view dengan data yang sudah difilter
     return view('goats.index', compact('totalGoats', 'totalMale', 'totalFemale', 'averageWeight', 'mostCommonBreed', 'cageDistribution', 'ageDistribution'));
 }
+
 
 private function calculateAgeDistribution($goats)
 {
@@ -71,89 +89,45 @@ private function calculateAgeDistribution($goats)
 
     return $ageDistribution;
 }
+    
 
+public function store(Request $request)
+{
+    // Validasi input dari permintaan
+    $validatedData = $request->validate([
+        'noTag' => 'required|string|max:255',
+        'tanggalLahir' => 'required|date',
+        'nama' => 'required|string|max:255',
+        'bobot' => 'required|numeric',
+        'kelamin' => 'required|in:Jantan,Betina',
+        'jenis' => 'required|string|max:255',
+        'induk' => 'required|string|max:255',
+        'pejantan' => 'required|string|max:255',
+        'posisiKandang' => 'required|string|max:255',
+        'asal' => 'required|string|max:255',
+        'harga' => 'required|numeric',
+        'status' => 'required|in:tersedia,terjual,mati',
+    ]);
 
-    
-        
+    // Tambahkan UserId ke data yang akan dikirim
+    $validatedData['UserId'] = Session::get('user.id'); // Mengambil ID pengguna yang sedang login
 
-    public function store(Request $request)
-    {
-        // Validate the incoming data
-        $validator = Validator::make($request->all(), [
-            'noTag' => 'required|string|max:255',
-            'tanggalLahir' => 'required|date',
-            'nama' => 'required|string|max:255',
-            'bobot' => 'required|numeric',
-            'kelamin' => 'required|string|max:255',
-            'jenis' => 'required|string|max:255',
-            'induk' => 'required|string|max:255',
-            'pejantan' => 'required|string|max:255',
-            'posisiKandang' => 'required|string|max:255',
-            'asal' => 'required|string|max:255',
-            'harga' => 'required|integer',
-            'status' => 'required|string|max:255',
-        ],
-        [
-            'noTag.required' => 'Nomor tag harus diisi.',
-            'noTag.string' => 'Nomor tag harus berupa teks.',
-            'noTag.max' => 'Nomor tag tidak boleh lebih dari 255 karakter.',
-            
-            'tanggalLahir.required' => 'Tanggal lahir harus diisi.',
-            'tanggalLahir.date' => 'Tanggal lahir harus berupa tanggal yang valid.',
-            
-            'nama.required' => 'Nama harus diisi.',
-            'nama.string' => 'Nama harus berupa teks.',
-            'nama.max' => 'Nama tidak boleh lebih dari 255 karakter.',
-            
-            'bobot.required' => 'Bobot harus diisi.',
-            'bobot.numeric' => 'Bobot harus berupa angka.',
-            
-            'kelamin.required' => 'Jenis kelamin harus diisi.',
-            'kelamin.string' => 'Jenis kelamin harus berupa teks.',
-            'kelamin.max' => 'Jenis kelamin tidak boleh lebih dari 255 karakter.',
-            
-            'jenis.required' => 'Jenis harus diisi.',
-            'jenis.string' => 'Jenis harus berupa teks.',
-            'jenis.max' => 'Jenis tidak boleh lebih dari 255 karakter.',
-            
-            'induk.required' => 'Nama induk harus diisi.',
-            'induk.string' => 'Nama induk harus berupa teks.',
-            'induk.max' => 'Nama induk tidak boleh lebih dari 255 karakter.',
-            
-            'pejantan.required' => 'Nama pejantan harus diisi.',
-            'pejantan.string' => 'Nama pejantan harus berupa teks.',
-            'pejantan.max' => 'Nama pejantan tidak boleh lebih dari 255 karakter.',
-            
-            'posisiKandang.required' => 'Posisi kandang harus diisi.',
-            'posisiKandang.string' => 'Posisi kandang harus berupa teks.',
-            'posisiKandang.max' => 'Posisi kandang tidak boleh lebih dari 255 karakter.',
-            
-            'asal.required' => 'Asal harus diisi.',
-            'asal.string' => 'Asal harus berupa teks.',
-            'asal.max' => 'Asal tidak boleh lebih dari 255 karakter.',
-            
-            'harga.required' => 'Harga harus diisi.',
-            'harga.integer' => 'Harga harus berupa angka.',
-            
-            'status.required' => 'Status harus diisi.',
-            'status.string' => 'Status harus berupa teks.',
-            'status.max' => 'Status tidak boleh lebih dari 255 karakter.',
-        ]);
-    
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
-    
-        // Send the request to the API to create the goat
-        $response = Http::withToken(Session::get('api_token'))->post($this->apiUrl, $request->all());
-    
-        if ($response->successful()) {
-            // Redirect to the goats index page with a success message
-            return redirect('goats')->with('success', 'Data Kambing Berhasil Ditambahkan.');
-        } else {
-            return redirect()->back()->withErrors('Gagal Menambahkan Data Kambing. Nomor Tag Harus Unik.')->withInput();
-        }
+    // Mengirim permintaan POST untuk menambahkan data kambing
+    $response = Http::withToken(Session::get('api_token'))->post($this->apiUrl, $validatedData);
+
+    // Memeriksa apakah response berhasil
+    if ($response->successful()) {
+        // Jika berhasil, arahkan ke halaman daftar kambing dengan pesan sukses
+        return redirect('listKambing')->with('success', 'Data Kambing Berhasil Ditambahkan.');
+    } else {
+        // Jika gagal, arahkan kembali ke form tambah dengan pesan error
+        return redirect()->back()->withErrors('Gagal Menambahkan Data Kambing.')->withInput();
     }
+}
+
+
+
+
     
     // public function scanQRCode(Request $request)
     // {
@@ -165,10 +139,7 @@ private function calculateAgeDistribution($goats)
     
 
 
-          
-     
-     
-    
+
 
         public function show($id)
         {
@@ -176,15 +147,14 @@ private function calculateAgeDistribution($goats)
             $goat = $response->json();
         
             if (!$response->successful() || !isset($goat['noTag'])) {
-                return redirect()   ->back()->withErrors('Data Kambing tidak ditemukan atau Nomor Tag tidak tersedia.');
+                return redirect()->back()->withErrors('Data Kambing tidak ditemukan atau Nomor Tag tidak tersedia.');
             }
         
             return view('goats.show', compact('goat'));
         }
         
 
-        public function update(Request $request, $id)
-        {
+        public function update(Request $request, $id) {
             // Validasi input dari permintaan
             $validatedData = $request->validate([
                 'noTag' => 'required|string|max:255',
@@ -200,51 +170,75 @@ private function calculateAgeDistribution($goats)
                 'harga' => 'required|numeric',
                 'status' => 'required|in:tersedia,terjual,mati',
             ]);
-        
-            // Mengirim permintaan PUT untuk memperbarui data kambing
-            $response = Http::withToken(Session::get('api_token'))->put($this->apiUrl . '/' . $id, $validatedData);
-        
-            // Memeriksa apakah response berhasil
+
+            // Tambahkan UserId ke data yang akan dikirim
+            $validatedData['UserId'] = Session::get('user.id'); // Mengambil ID pengguna yang sedang login
+
+            // Mengirim permintaan PUT untuk memperbarui data kambing berdasarkan ID
+            $response = Http::withToken(Session::get('api_token'))
+                            ->put($this->apiUrl . '/' . $id, $validatedData);
+
+            // Memeriksa apakah respons berhasil
             if ($response->successful()) {
                 // Jika berhasil, arahkan ke halaman daftar kambing dengan pesan sukses
-                return redirect('goats')->with('success', 'Data Kambing Berhasil Diperbarui.');
+                return redirect('listKambing')->with('success', 'Data Kambing Berhasil Diubah.');
             } else {
                 // Jika gagal, arahkan kembali ke form edit dengan pesan error
-                return redirect()->back()->withErrors('Gagal Memperbarui Data Kambing.')->withInput();
+                return redirect()->back()->withErrors('Gagal Mengubah Data Kambing.')->withInput();
             }
         }
+
         
 
     public function destroy($id)
     {
         Http::withToken(Session::get('api_token'))->delete($this->apiUrl . '/' . $id);
-        return redirect('goats');
+        return redirect('goats/listKambing')->with('success', 'Data Kambing Berhasil Dihapus.');
     }
 
 
 
-public function generateQRCode($id)
+
+    public function generateQRCode($id)
 {
-    // Check if the goat exists by making a request to the API
-    $response = Http::withToken(Session::get('api_token'))->get($this->apiUrl . '/' . $id);
+    // Fetch specific goat details
+    $response = Http::withToken(Session::get('api_token'))
+        ->get(env('API_URL') . '/goats/' . $id);
 
     if ($response->failed()) {
         return response('Goat not found', 404);
     }
 
-    // Get the custom domain from the .env file
-    $customDomain = env('APP_URL', 'https://72aa-36-74-40-25.ngrok-free.app');
-    $goatUrl = $customDomain . '/goats/' . $id;
+    // Get the goat data
+    $goat = $response->json();
 
-    // Create the QR code with the goat URL
-    $qrCode = new QrCode($goatUrl);
-    $writer = new PngWriter();
-    $result = $writer->write($qrCode);
+    // Ensure the goat data has a tag number
+    if (!isset($goat['noTag'])) {
+        return response('Tag number not found for this goat', 404);
+    }
+
+    // Get the tag number
+    $tagNumber = $goat['noTag'];
+
+    // Create the URL for the goat details page
+    $goatUrl = url('goats/' . $id);
+
+    // Create the QR code URL using ZXing API, now encoding the full URL instead of just the tag number
+    $zxingApiUrl = 'https://api.qrserver.com/v1/create-qr-code/';
+    $qrCodeUrl = $zxingApiUrl . '?size=200x200&data=' . urlencode($goatUrl);
+
+    // Fetch the QR code image from the ZXing API
+    $qrCodeImage = file_get_contents($qrCodeUrl);
+
+    if ($qrCodeImage === false) {
+        return response('Failed to generate QR code', 500);
+    }
 
     // Return the QR code image as a PNG
-    return response($result->getString(), 200)
+    return response($qrCodeImage, 200)
         ->header('Content-Type', 'image/png');
 }
+
 
 
 
@@ -305,8 +299,12 @@ public function generateQRCode($id)
 
     public function create()
     {
+     // Pastikan user ID tersedia di session
+    $userId = session('user_id');
+
         return view('goats.create');
     }
+    
 
     public function edit($id)
     {
@@ -315,4 +313,51 @@ public function generateQRCode($id)
         return view('goats.edit', compact('goat'));
     }
 
+    public function weightHistory($id)
+    {
+        $response = Http::withToken(Session::get('api_token'))->get($this->apiUrl . '/' . $id);
+        $goat = $response->json();
+        return view('goats.weightHistory', compact('goat'));
+    }
+
+    public function addWeight(Request $request, $id)
+    {
+        $validatedData = $request->validate([
+            'bobot' => 'required|numeric',
+            'tanggal' => 'required|date',
+        ]);
+
+        $response = Http::withToken(Session::get('api_token'))->post($this->apiUrl . '/' . $id . '/weights', $validatedData);
+
+        if ($response->successful()) {
+            return redirect()->back()->with('success', 'Berat Kambing Berhasil Ditambahkan.');
+        } else {
+            return redirect()->back()->withErrors('Gagal Menambahkan Berat Kambing.')->withInput();
+        }
+    }
+
+    public function laporan()
+    {
+       // Dapatkan ID pengguna yang sedang login
+    $userId = Session::get('user.id');
+
+    // Ambil data kambing dari API
+    $response = Http::withToken(Session::get('api_token'))->get($this->apiUrl);
+    $goats = $response->json();
+
+    // Filter data kambing berdasarkan user_id pengguna yang sedang login
+    $filteredGoats = array_filter($goats, fn($goat) => $goat['UserId'] == $userId);
+
+    // Hitung total kambing, jumlah kambing jantan dan betina, rata-rata bobot, dll.
+    $totalGoats = count($filteredGoats);
+    $totalMale = count(array_filter($filteredGoats, fn($goat) => $goat['kelamin'] === 'Jantan'));
+    $totalFemale = count(array_filter($filteredGoats, fn($goat) => $goat['kelamin'] === 'Betina'));
+    $averageWeight = $totalGoats > 0 ? array_sum(array_column($filteredGoats, 'bobot')) / $totalGoats : 0;
+
+    // Dapatkan posisi kandang unik, urutkan, dan kembalikan sebagai koleksi
+    $positions = collect($filteredGoats)->pluck('posisiKandang')->unique()->sort()->values();    
+
+    // Tampilkan view dengan data yang sudah difilter
+    return view('goats.laporan', compact('filteredGoats', 'totalGoats', 'totalMale', 'totalFemale', 'averageWeight', 'positions'));
+}
 }

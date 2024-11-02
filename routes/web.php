@@ -3,6 +3,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\GoatController;
 use App\Http\Controllers\CareController;
+use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,9 +25,13 @@ Route::get('/', function () {
 Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('login', [AuthController::class, 'login']);
 Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+Route::get('register', [AuthController::class, 'showRegistrationForm'])->name('register');
+Route::post('register', [AuthController::class, 'register']);
 
 // Routes for Goat Management
 Route::middleware(['authcheck'])->group(function () {
+
+
     // Goat Routes
     Route::get('goats', [GoatController::class, 'index'])->name('goats.index');
     Route::get('goats/create', [GoatController::class, 'create'])->name('goats.create');
@@ -34,10 +40,13 @@ Route::middleware(['authcheck'])->group(function () {
     Route::get('goats/{id}/edit', [GoatController::class, 'edit'])->name('goats.edit');
     Route::put('goats/{id}', [GoatController::class, 'update'])->name('goats.update');
     Route::delete('goats/{id}', [GoatController::class, 'destroy'])->name('goats.destroy');
+    Route::get('/laporan', [GoatController::class, 'laporan'])->name('goats.laporan');
     
     // QR Code Routes
     Route::get('/generate-qr-code/{id}', [GoatController::class, 'generateQrCode'])->name('generate.qr.code');
     Route::get('/view-qr-code/{id}', [GoatController::class, 'viewQrCode'])->name('view.qr.code');
+
+ 
 
 
     Route::get('/goats/search', [GoatController::class, 'search'])->name('goats.search');
@@ -58,4 +67,20 @@ Route::middleware(['authcheck'])->group(function () {
 
     // QR Code Scanning Route
     Route::get('/scan', [GoatController::class, 'scan'])->name('goats.scan');
+
+
+    Route::get('/weight-history/{goatId}', function ($goatId) {
+        return view('weight-history', ['goatId' => $goatId]);
+    });
+});
+
+
+
+// Menambahkan data user yang sedang login kedalam sistem
+Route::middleware(['fetchUserProfile'])->group(function () {
+    Route::get('goats', [GoatController::class, 'index']);
+    Route::get('profiles', [UserController::class, 'index']);
+    Route::get('goats/create', [GoatController::class, 'create'])->name('goats.create');
+    Route::put('goats/edit', [GoatController::class, 'edit'])->name('goats.edit');
+    Route::post('goats', [GoatController::class, 'store'])->name('goats.store');
 });

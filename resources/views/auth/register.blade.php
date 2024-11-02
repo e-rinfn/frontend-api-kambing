@@ -8,13 +8,13 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-    <title>Login Informan Kambing</title>
+    <title>Register Pure Fresh</title>
     <style>
         body {
             background-color: #f4f6f9;
         }
 
-        .login-container {
+        .register-container {
             display: flex;
             justify-content: center;
             align-items: center;
@@ -57,55 +57,75 @@
 </head>
 
 <body>
-    <div class="login-container">
-        <!-- Login Card -->
+    <div class="register-container">
         <div class="card p-4">
-            <!-- Logo -->
-            <div class="text-center">
-                <img src="{{ asset('/logo.png') }}" alt="Logo" class="logo">
-            </div>
-            <h5 class="text-center mb-4">LOGIN</h5>
-            <form action="{{ url('login') }}" method="POST">
+
+            <h5 class="text-center mb-4">Registrasi Akun Pengguna</h5>
+
+            <form action="{{ url('register') }}" method="POST">
                 @csrf
+                <!-- Input role disembunyikan -->
+                <input type="hidden" id="role" name="role" value="pegawai">
+
+                <!-- Jika ada error untuk username -->
                 <div class="mb-3">
                     <label for="username" class="form-label">Username</label>
-                    <input type="text" class="form-control" id="username" name="username" placeholder="Username"
-                        required>
+                    <input type="text" class="form-control @error('username') is-invalid @enderror" id="username"
+                        name="username" placeholder="Masukkan username" value="{{ old('username') }}" required>
+                    @error('username')
+                        <div class="invalid-feedback">
+                            {{ $message }}
+                        </div>
+                    @enderror
                 </div>
-                <div class="mb-4">
+
+                <!-- Jika ada error untuk password -->
+                <div class="mb-3">
                     <label for="password" class="form-label">Password</label>
-                    <input type="password" class="form-control" id="password" name="password" placeholder="Password"
-                        required>
+                    <input type="password" class="form-control @error('password') is-invalid @enderror" id="password"
+                        name="password" placeholder="Masukkan password" required>
+                    @error('password')
+                        <div class="invalid-feedback">
+                            {{ $message }}
+                        </div>
+                    @enderror
                 </div>
-                <button type="submit" class="btn btn-primary w-100">Login</button>
+
+                <!-- Jika ada error untuk password confirmation -->
+                <div class="mb-3">
+                    <label for="password_confirmation" class="form-label">Confirm Password</label>
+                    <input type="password" class="form-control" id="password_confirmation" name="password_confirmation"
+                        placeholder="Masukkan konfirmasi password" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Buat Akun</button>
             </form>
-            <div class="text-center text-small mt-3">
-                <a href="{{ url('/register') }}" class="text-success">Belum memiliki akun? Registrasi</a>
-            </div>
         </div>
     </div>
 
-    <!-- Modal for Errors -->
+    <!-- Modal untuk menampilkan pesan error -->
     <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="errorModalLabel">Login Gagal</h5>
+                    <h5 class="modal-title" id="errorModalLabel">Registration Error</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <ul id="errorList">
-                        @if ($errors->any())
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        @endif
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
                     </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Script untuk menampilkan modal jika ada error -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
         integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous">
     </script>
@@ -114,13 +134,12 @@
     </script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            @if ($errors->any())
-                var errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
-                errorModal.show();
-            @endif
-        });
+        @if ($errors->any())
+            var errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+            errorModal.show();
+        @endif
     </script>
+
 </body>
 
 </html>

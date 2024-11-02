@@ -8,6 +8,12 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- PWA  -->
+    <meta name="theme-color" content="#6777ef" />
+    <link rel="apple-touch-icon" href="{{ asset('logo.png') }}">
+    <link rel="manifest" href="{{ asset('/manifest.json') }}">
+
     <style>
         /* Menyembunyikan scrollbar sidebar pada iOS */
         .offcanvas-end {
@@ -95,11 +101,17 @@
 
         .nav-link {
             text-align: center;
+            color: #6c9e4e;
+        }
+
+        .nav-link:hover {
+            color: #6c757d;
         }
 
         .nav-link i {
             font-size: 1.5rem;
             display: block;
+
         }
 
         .nav-link div {
@@ -108,18 +120,59 @@
         }
 
         .nav-link-scan {
-            background-color: #007bff;
+            background-color: #6c9e4e;
             color: white;
             border-radius: 50px;
             padding: 10px 15px;
         }
 
         .nav-link-scan:hover {
-            background-color: #0056b3;
+            background-color: #567d3d;
+            color: white
         }
 
         .scan-icon {
             font-size: 1.5rem;
+        }
+
+        /* CSS untuk styling sidebar */
+        .sidebar-logo {
+            width: 40px;
+            /* Ukuran logo */
+            height: auto;
+            /* Menjaga aspek rasio */
+        }
+
+        .offcanvas {
+            background-color: #f8f9fa;
+            /* Latar belakang sidebar */
+            width: 250px;
+            /* Lebar sidebar */
+        }
+
+        .list-group-item {
+            border: none;
+            /* Menghilangkan border dari item */
+        }
+
+        .btn-logout {
+            background-color: #dc3545;
+            /* Warna tombol logout */
+            color: white;
+            /* Warna teks tombol logout */
+        }
+
+        .btn-logout:hover {
+            background-color: #c82333;
+            /* Warna tombol saat hover */
+        }
+
+        /* Responsif */
+        @media (max-width: 576px) {
+            .offcanvas {
+                width: 100%;
+                /* Mengatur lebar sidebar penuh pada perangkat mobile */
+            }
         }
     </style>
 </head>
@@ -129,7 +182,10 @@
     <!-- Sidebar -->
     <div class="offcanvas offcanvas-start" tabindex="1" id="sidebar" aria-labelledby="sidebarLabel">
         <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="sidebarLabel">Menu</h5>
+            <div class="d-flex align-items-center">
+                <img src="{{ asset('/logo.png') }}" alt="Logo" class="sidebar-logo me-2">
+                <h5 class="offcanvas-title" id="sidebarLabel" style="margin-left: 20px">Menu Utama</h5>
+            </div>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">
@@ -140,48 +196,42 @@
                     </a>
                 </li>
                 <li class="list-group-item">
-                    <a href="#" class="text-decoration-none text-dark d-flex align-items-center">
+                    <a href="{{ url('goats/create') }}"
+                        class="text-decoration-none text-dark d-flex align-items-center">
                         <i class="bi bi-plus-circle me-2"></i> Tambah Kambing
                     </a>
                 </li>
                 <li class="list-group-item">
-                    <a href="#" class="text-decoration-none text-dark d-flex align-items-center">
-                        <i class="bi bi-graph-up me-2"></i> Data Kambing
-                    </a>
-                </li>
-                <li class="list-group-item">
-                    <a href="#" class="text-decoration-none text-dark d-flex align-items-center">
+                    <a href="{{ url('laporan') }}" class="text-decoration-none text-dark d-flex align-items-center">
                         <i class="bi bi-file-earmark-text me-2"></i> Laporan
-                    </a>
-                </li>
-                <li class="list-group-item">
-                    <a href="#" class="text-decoration-none text-dark d-flex align-items-center">
-                        <i class="bi bi-gear me-2"></i> Pengaturan
                     </a>
                 </li>
                 <li class="list-group-item mt-3">
                     <form id="logout-form" action="{{ route('logout') }}" method="POST">
                         @csrf
-                        <button type="submit" class="btn btn-logout w-100">Logout</button>
+                        <button type="submit" class="btn btn-logout w-100">Keluar</button>
                     </form>
                 </li>
             </ul>
-
         </div>
     </div>
 
 
 
-    <!-- Navbar atas tetap di atas -->
-    <nav class="navbar navbar-light bg-light navbar-top">
+    <!-- Navbar with farm-themed colors -->
+    <nav class="navbar navbar-light navbar-top" style="background-color: #6c9e4e; color: white;">
         <div class="container-fluid">
-            <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar"
+            <button class="btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar"
                 aria-controls="sidebar">
-                <i class="bi bi-list"></i> Menu
+                <i class="bi bi-list" style="font-size: 1.5rem; color: white;"></i>
+                <!-- Hamburger icon with larger size and white color -->
             </button>
-            <a class="navbar-brand" href="#">Goat Management</a>
+            <a class="navbar-brand text-white" href="#" style="font-weight: bold;">
+                Goat Management
+            </a>
         </div>
     </nav>
+
 
     <!-- Konten utama -->
     <div class="container main-content">
@@ -205,21 +255,65 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">
+                    <a class="nav-link" href="{{ url('profiles') }}">
                         <i class="bi bi-person-gear"></i>
-                        <div>Akun</div>
+                        <div>Profile</div>
                     </a>
                 </li>
             </ul>
         </div>
     </nav>
 
+    <!-- Logout Confirmation Modal -->
+    <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="logoutModalLabel">Konfirmasi Logout</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Apakah Anda yakin ingin keluar?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST">
+                        @csrf
+                        <button type="submit" class="btn btn-danger">Keluar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
         integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous">
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
         integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous">
+    </script>
+
+    <script src="{{ asset('/sw.js') }}"></script>
+    <script>
+        // Service worker registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then((registration) => {
+                        console.log('Service Worker registered with scope:', registration.scope);
+                    })
+                    .catch((error) => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
+
+        // Logout confirmation modal
+        document.querySelector('.btn-logout').addEventListener('click', function(event) {
+            event.preventDefault();
+            var myModal = new bootstrap.Modal(document.getElementById('logoutModal'));
+            myModal.show();
+        });
     </script>
 </body>
 

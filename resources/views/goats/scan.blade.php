@@ -1,54 +1,109 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container">
+    <style>
+        /* Scanning beam animation */
+        #scanner-beam {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background-color: rgba(0, 255, 0, 0.6);
+            /* Red color beam */
+            animation: scan 3s linear infinite;
+            z-index: 10;
+        }
+
+        /* Keyframes for scanning animation */
+        @keyframes scan {
+            0% {
+                top: 0;
+            }
+
+            50% {
+                top: 100%;
+            }
+
+            100% {
+                top: 0;
+            }
+        }
+
+        /* Ensure the video scan box is responsive */
+        #preview-container {
+            position: relative;
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            /* This ensures the scanning beam stays within the video bounds */
+        }
+
+        #preview {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Adjust the card and buttons */
+        .card {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        /* Button styling */
+        .btn-lg {
+            padding: 10px 20px;
+        }
+    </style>
+
+    <div class="container align-items-center justify-content-center mt-5">
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <div class="card shadow-lg">
-                    <div class="card-header bg-primary text-white">
-                        <h3 class="text-center">Scan QR Code</h3>
+                    <div class="card-header text-dark">
+                        <h3 class="text-center">Scanning QR Code</h3>
                     </div>
                     <div class="card-body">
-                        <div class="d-flex justify-content-center">
-                            <video id="preview" class="rounded" width="100%" height="auto"
-                                style="border: 2px solid #ddd;"></video>
-                        </div>
-                        <div class="mt-3 d-flex justify-content-center">
-                            <button id="start-scan" class="btn btn-success btn-lg">Start Scan</button>
-                            <button id="stop-scan" class="btn btn-danger btn-lg ms-3" disabled>Stop Scan</button>
+                        <div id="preview-container" class="d-flex justify-content-center position-relative">
+                            <video id="preview" class="rounded"></video>
+                            <!-- Scanning animation beam -->
+                            <div id="scanner-beam"></div>
                         </div>
                         <div class="mt-3 d-flex justify-content-center">
                             <button id="toggle-torch" class="btn btn-warning btn-lg" disabled>Toggle Torch</button>
                         </div>
-                        <div class="mt-3 d-flex justify-content-center">
-                            <select id="device-select" class="form-select w-50">
-                                <!-- Video input device options will be dynamically added here -->
-                            </select>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Modal -->
-        <div class="modal fade" id="resultModal" tabindex="-1" aria-labelledby="resultModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="resultModalLabel">QR Code Result</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body text-center">
-                        <p id="qrResultText"></p>
-                    </div>
-                    <div class="modal-footer">
-                        <a id="qrResultLink" href="#" class="btn btn-primary" target="_blank">View Link</a>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
-                            id="resumeScan">Back</button>
-                    </div>
+
+
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="resultModal" tabindex="-1" aria-labelledby="resultModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="resultModalLabel">QR Code Result</h5>
+                </div>
+                <div class="modal-body text-center">
+                    <p id="qrResultText"></p>
+                </div>
+                <div class="modal-footer">
+                    <a id="qrResultLink" href="#" class="btn btn-primary" target="_blank">View Link</a>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="resumeScan">Back</button>
                 </div>
             </div>
         </div>
+    </div>
     </div>
 
     <script src="https://unpkg.com/@zxing/library@latest"></script>
@@ -56,51 +111,46 @@
         document.addEventListener('DOMContentLoaded', function() {
             const codeReader = new ZXing.BrowserQRCodeReader();
             const previewElement = document.getElementById('preview');
-            const startButton = document.getElementById('start-scan');
-            const stopButton = document.getElementById('stop-scan');
             const torchButton = document.getElementById('toggle-torch');
-            const deviceSelect = document.getElementById('device-select');
-            let activeDeviceId = null;
-            let scanning = false;
             let isTorchOn = false;
             let currentStream = null;
 
-            function startScanner(deviceId) {
-                if (scanning) return; // Prevent multiple scanners running
-
-                scanning = true;
-                codeReader.decodeFromVideoDevice(deviceId, previewElement, (result, error) => {
+            function startScanner() {
+                codeReader.decodeFromVideoDevice(null, previewElement, (result, error) => {
                     if (result) {
                         const scannedUrl = result.text.trim();
                         if (scannedUrl) {
-                            // Show modal with result
-                            const modal = new bootstrap.Modal(document.getElementById('resultModal'));
+                            const modal = new bootstrap.Modal(document.getElementById('resultModal'), {
+                                backdrop: 'static', // Prevent closing by clicking outside
+                                keyboard: false // Prevent closing with the Escape key
+                            });
                             document.getElementById('qrResultText').innerText =
                                 `QR Code scanned: ${scannedUrl}`;
                             document.getElementById('qrResultLink').href = scannedUrl;
                             modal.show();
-                            codeReader.reset(); // Stop scanning
-                            scanning = false;
+                            codeReader.reset();
+                            stopScanning();
                         }
                     }
+
                     if (error && !(error instanceof ZXing.NotFoundException)) {
                         console.error(error);
                     }
                 });
 
-                // Obtain the media stream for torch control
                 navigator.mediaDevices.getUserMedia({
                         video: {
-                            deviceId: {
-                                exact: deviceId
-                            }
+                            facingMode: "environment"
                         }
                     })
                     .then(stream => {
                         currentStream = stream;
+                        previewElement.srcObject = stream;
                         const track = stream.getVideoTracks()[0];
+
+                        // Check if torch is supported and enable button if it is
                         if (track.getCapabilities().torch) {
-                            torchButton.disabled = false; // Enable torch button
+                            torchButton.disabled = false;
                         }
                     })
                     .catch(err => {
@@ -108,93 +158,42 @@
                     });
             }
 
-            function toggleTorch() {
-                if (currentStream) {
-                    const track = currentStream.getVideoTracks()[0];
-                    if (track.getCapabilities().torch) {
-                        track.applyConstraints({
-                            advanced: [{
-                                torch: !isTorchOn
-                            }]
-                        }).then(() => {
-                            isTorchOn = !isTorchOn;
-                            torchButton.innerText = isTorchOn ? 'Turn Torch Off' : 'Turn Torch On';
-                        }).catch(err => {
-                            console.error('Error toggling torch:', err);
-                        });
-                    } else {
-                        alert('Torch not supported on this device.');
-                    }
-                }
-            }
-
-            function handleDeviceSelection() {
-                codeReader.listVideoInputDevices()
-                    .then((videoInputDevices) => {
-                        if (videoInputDevices.length === 0) {
-                            alert('No video input devices found.');
-                            return;
-                        }
-
-                        deviceSelect.innerHTML = ''; // Clear previous options
-                        videoInputDevices.forEach(device => {
-                            const option = document.createElement('option');
-                            option.value = device.deviceId;
-                            option.text = device.label || `Camera ${device.deviceId}`;
-                            deviceSelect.appendChild(option);
-                        });
-
-                        // Automatically select the rear camera (if available)
-                        const rearCamera = videoInputDevices.find(device => device.label.toLowerCase().includes(
-                            'back') || device.label.toLowerCase().includes('rear'));
-                        const selectedDeviceId = rearCamera ? rearCamera.deviceId : videoInputDevices[0]
-                            .deviceId;
-                        deviceSelect.value = selectedDeviceId;
-                        startScanner(selectedDeviceId);
-
-                        deviceSelect.addEventListener('change', () => {
-                            codeReader.reset();
-                            startScanner(deviceSelect.value);
-                        });
-                    })
-                    .catch((err) => {
-                        console.error('Error accessing video input devices:', err);
-                        alert('Error accessing video input devices.');
-                    });
-            }
-
-            startButton.addEventListener('click', () => {
-                startButton.disabled = true;
-                stopButton.disabled = false;
-                startScanner(deviceSelect.value);
-            });
-
-            stopButton.addEventListener('click', () => {
+            function stopScanning() {
                 codeReader.reset();
-                scanning = false;
-                startButton.disabled = false;
-                stopButton.disabled = true;
-                torchButton.disabled = true; // Disable torch button
                 if (currentStream) {
                     currentStream.getTracks().forEach(track => track.stop());
                     currentStream = null;
                 }
-            });
+            }
+
+            function toggleTorch() {
+                if (currentStream) {
+                    const track = currentStream.getVideoTracks()[0];
+                    track.applyConstraints({
+                        advanced: [{
+                            torch: !isTorchOn
+                        }]
+                    }).then(() => {
+                        isTorchOn = !isTorchOn;
+                        torchButton.innerText = isTorchOn ? 'Turn Torch Off' : 'Turn Torch On';
+                    }).catch(err => {
+                        console.error('Error toggling torch:', err);
+                    });
+                }
+            }
 
             torchButton.addEventListener('click', () => {
                 toggleTorch();
             });
 
             document.getElementById('resumeScan').addEventListener('click', () => {
-                scanning = false;
-                startScanner(deviceSelect.value);
+                startScanner();
             });
 
-            // Check if mediaDevices API is supported
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                 alert('Camera access is not supported in this browser.');
             } else {
-                handleDeviceSelection();
+                startScanner();
             }
         });
     </script>
