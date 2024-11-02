@@ -10,20 +10,33 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <title>Login Informan Kambing</title>
     <style>
-        /* Background color */
         body {
-            background-color: #e8f5e9;
+            background-color: #f4f6f9;
         }
 
         .login-container {
-            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 15px;
+            /* Add some padding */
         }
 
         .card {
-            border-radius: 15px;
-            padding: 20px;
-            background-color: #ffffff;
+            width: 100%;
+            max-width: 400px;
+            /* Limit width for better mobile experience */
             border: none;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            width: 80px;
+            /* Logo size */
+            height: auto;
+            margin: 0 auto 20px;
         }
 
         .btn-primary {
@@ -36,82 +49,38 @@
             border-color: #45a049;
         }
 
-        .form-control {
-            border-radius: 10px;
-        }
-
-        .logo img {
-            width: 100px;
-            height: auto;
-        }
-
-        /* Mobile-first styles */
-        @media (max-width: 576px) {
-            .card {
-                padding: 15px;
-            }
-
-            .btn {
-                font-size: 14px;
-            }
-
-            .form-control {
-                font-size: 14px;
-            }
-        }
-
-        /* Desktop-specific adjustments */
-        @media (min-width: 992px) {
-            .login-container {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                background-color: #4caf50;
-            }
-
-            .col-md-4 {
-                margin: auto;
-            }
-
-            .logo img {
-                width: 120px;
-            }
-
-            .card {
-                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            }
+        .text-small {
+            font-size: 0.9rem;
+            /* Make the text smaller */
         }
     </style>
 </head>
 
 <body>
-    <div class="d-flex justify-content-center align-items-center login-container">
-        <div class="col-md-4 col-sm-10">
+    <div class="login-container">
+        <!-- Login Card -->
+        <div class="card p-4">
             <!-- Logo -->
-            <div class="text-center mb-4 logo">
-                <img src="https://via.placeholder.com/150" alt="Logo" class="img-fluid">
+            <div class="text-center">
+                <img src="{{ asset('/logo.png') }}" alt="Logo" class="logo">
             </div>
-            <div class="card shadow-sm">
-                <h4 class="text-center mb-4">Login</h4>
-
-                <form action="{{ url('login') }}" method="POST">
-                    @csrf
-                    <div class="form-group mb-3">
-                        <label for="username" class="form-label">Username</label>
-                        <input type="text" class="form-control" id="username" name="username"
-                            placeholder="Masukkan username" required>
-                    </div>
-                    <div class="form-group mb-4">
-                        <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="password" name="password"
-                            placeholder="Masukkan password" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100 mb-3">Login</button>
-                </form>
-            </div>
-
-            <div class="text-center mt-3">
-                <a href="{{ url('/register') }}" class="text-success">Belum memiliki akun? Registrasi disini.</a>
+            <h5 class="text-center mb-4">LOGIN</h5>
+            <form action="{{ url('login') }}" method="POST">
+                @csrf
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="username" name="username" placeholder="Username"
+                        required>
+                </div>
+                <div class="mb-4">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Password"
+                        required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Login</button>
+            </form>
+            <div class="text-center text-small mt-3">
+                <a href="{{ url('/register') }}" class="text-success">Belum memiliki akun? Registrasi</a>
             </div>
         </div>
     </div>
@@ -121,7 +90,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="errorModalLabel">Login Failed</h5>
+                    <h5 class="modal-title" id="errorModalLabel">Login Gagal</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">

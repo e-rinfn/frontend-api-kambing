@@ -134,6 +134,46 @@
         .scan-icon {
             font-size: 1.5rem;
         }
+
+        /* CSS untuk styling sidebar */
+        .sidebar-logo {
+            width: 40px;
+            /* Ukuran logo */
+            height: auto;
+            /* Menjaga aspek rasio */
+        }
+
+        .offcanvas {
+            background-color: #f8f9fa;
+            /* Latar belakang sidebar */
+            width: 250px;
+            /* Lebar sidebar */
+        }
+
+        .list-group-item {
+            border: none;
+            /* Menghilangkan border dari item */
+        }
+
+        .btn-logout {
+            background-color: #dc3545;
+            /* Warna tombol logout */
+            color: white;
+            /* Warna teks tombol logout */
+        }
+
+        .btn-logout:hover {
+            background-color: #c82333;
+            /* Warna tombol saat hover */
+        }
+
+        /* Responsif */
+        @media (max-width: 576px) {
+            .offcanvas {
+                width: 100%;
+                /* Mengatur lebar sidebar penuh pada perangkat mobile */
+            }
+        }
     </style>
 </head>
 
@@ -142,7 +182,10 @@
     <!-- Sidebar -->
     <div class="offcanvas offcanvas-start" tabindex="1" id="sidebar" aria-labelledby="sidebarLabel">
         <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="sidebarLabel">Menu</h5>
+            <div class="d-flex align-items-center">
+                <img src="{{ asset('/logo.png') }}" alt="Logo" class="sidebar-logo me-2">
+                <h5 class="offcanvas-title" id="sidebarLabel" style="margin-left: 20px">Menu Utama</h5>
+            </div>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">
@@ -158,29 +201,18 @@
                         <i class="bi bi-plus-circle me-2"></i> Tambah Kambing
                     </a>
                 </li>
-                {{-- <li class="list-group-item">
-                    <a href="#" class="text-decoration-none text-dark d-flex align-items-center">
-                        <i class="bi bi-graph-up me-2"></i> Data Kambing
-                    </a>
-                </li> --}}
                 <li class="list-group-item">
                     <a href="{{ url('laporan') }}" class="text-decoration-none text-dark d-flex align-items-center">
                         <i class="bi bi-file-earmark-text me-2"></i> Laporan
                     </a>
                 </li>
-                {{-- <li class="list-group-item">
-                    <a href="#" class="text-decoration-none text-dark d-flex align-items-center">
-                        <i class="bi bi-gear me-2"></i> Pengaturan
-                    </a>
-                </li> --}}
                 <li class="list-group-item mt-3">
                     <form id="logout-form" action="{{ route('logout') }}" method="POST">
                         @csrf
-                        <button type="submit" class="btn btn-logout w-100">Logout</button>
+                        <button type="submit" class="btn btn-logout w-100">Keluar</button>
                     </form>
                 </li>
             </ul>
-
         </div>
     </div>
 
@@ -232,6 +264,27 @@
         </div>
     </nav>
 
+    <!-- Logout Confirmation Modal -->
+    <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="logoutModalLabel">Konfirmasi Logout</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Apakah Anda yakin ingin keluar?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST">
+                        @csrf
+                        <button type="submit" class="btn btn-danger">Keluar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
         integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous">
@@ -242,6 +295,7 @@
 
     <script src="{{ asset('/sw.js') }}"></script>
     <script>
+        // Service worker registration
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
@@ -253,6 +307,13 @@
                     });
             });
         }
+
+        // Logout confirmation modal
+        document.querySelector('.btn-logout').addEventListener('click', function(event) {
+            event.preventDefault();
+            var myModal = new bootstrap.Modal(document.getElementById('logoutModal'));
+            myModal.show();
+        });
     </script>
 </body>
 

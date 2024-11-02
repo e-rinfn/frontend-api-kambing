@@ -47,29 +47,50 @@ class AuthController extends Controller
     }
 
     public function register(Request $request)
-    {
-        // Validate the request
-        $request->validate([
-            'username' => 'required|string|max:255',
-            'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|string|in:admin,user',
-        ]);
+{
+    // Custom error messages
+    $messages = [
+        'username.required' => 'Username tidak boleh kosong.',
+        'username.max' => 'Username tidak lebih dari 255 karakter.',
+        'password.required' => 'Password tidak boleh kosong.',
+        'password.min' => 'Password memiliki minimal panjang 8 karakter.',
+        'password.confirmed' => 'Password tidak sesuai.',
+        'role.required' => 'Role is required.',
+        'role.in' => 'Invalid role selected.',
+    ];
 
-        // Send a POST request to the API to register the user
-        $response = Http::post(env('API_URL') . '/auth/register', [
-            'username' => $request->input('username'),
-            'password' => $request->input('password'),
-            'role' => $request->input('role'),
-        ]);
+    // Validate the request with custom messages
+    $request->validate([
+        'username' => 'required|string|max:255',
+        'password' => 'required|string|min:8|confirmed',
+        'role' => 'required|string|in:admin,pegawai',
+    ], $messages);
 
-        if ($response->successful()) {
-            // If registration is successful, redirect to the login page
-            return redirect('login')->with('success', 'Account created successfully. Please login.');
-        }
+    // Send a POST request to the API to register the user
+    $response = Http::post(env('API_URL') . '/auth/register', [
+        'username' => $request->input('username'),
+        'password' => $request->input('password'),
+        'role' => $request->input('role'),
+    ]);
 
-        // If the API response indicates an error, redirect back with an error message
-        return back()->withErrors(['message' => 'Registration failed. Please try again.']);
+    if ($response->successful()) {
+        // If registration is successful, redirect to the login page with a success message
+        return redirect('login')->with('success', 'Account created successfully. Please login.');
     }
+
+    // Check for specific error codes from the API and return custom error messages
+    if ($response->status() === 422) {
+        return back()->withErrors(['message' => 'The username is already taken. Please choose another one.']);
+    }
+
+    if ($response->status() === 400) {
+        return back()->withErrors(['message' => 'Invalid data provided. Please check your inputs.']);
+    }
+
+    // If the API response indicates any other error, return a generic error message
+    return back()->withErrors(['message' => 'Registration failed. Please try again later.']);
+}
+
 
     public function getCurrentUser(Request $request)
     {

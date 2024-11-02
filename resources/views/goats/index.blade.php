@@ -12,8 +12,9 @@
                     </div>
                 </div>
             </div>
+
             <!-- Combined Total Goats Card -->
-            <div class="col-md-12 mb-4">
+            <div class="col-md-8 mb-4">
                 <div class="card bg-light border-primary">
                     <div class="card-body">
                         <h5 class="card-title text-primary">Jenis Kelamin</h5>
@@ -61,7 +62,9 @@
                     </div>
                 </div>
             </div>
+        </div>
 
+        <div class="row">
             <!-- Cage Distribution Card -->
             <div class="col-md-6 mb-4">
                 <div class="card bg-light border-secondary">
@@ -101,8 +104,6 @@
             </div>
         </div>
     </div>
-
-
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
